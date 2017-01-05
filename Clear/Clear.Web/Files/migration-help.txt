@@ -1,0 +1,5 @@
+﻿程序包管理器控制台cmd:
+enable-migrations
+add-migration
+Get-Migrations
+Update-Database 
