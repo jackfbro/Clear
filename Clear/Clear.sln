@@ -15,6 +15,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clear.Service", "Clear.Serv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clear.Domain", "Clear.Domain\Clear.Domain.csproj", "{4D56A151-C210-4E11-84E4-318E194DDD84}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{4EDCFA42-9C83-41DB-8671-EABC96FE832E}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\MVC+老三层\MyWebFiles\分页存储过程.sql = ..\..\MVC+老三层\MyWebFiles\分页存储过程.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
