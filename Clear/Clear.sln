@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clear.Domain", "Clear.Domai
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{4EDCFA42-9C83-41DB-8671-EABC96FE832E}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\MVC+老三层\MyWebFiles\分页存储过程.sql = ..\..\MVC+老三层\MyWebFiles\分页存储过程.sql
+		SP_Paging.sql = SP_Paging.sql
 	EndProjectSection
 EndProject
 Global
