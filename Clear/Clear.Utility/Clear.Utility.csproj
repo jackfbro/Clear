@@ -62,6 +62,7 @@
     <Compile Include="EnumExtension.cs" />
     <Compile Include="ExtensionMethod.cs" />
     <Compile Include="MailHelper.cs" />
+    <Compile Include="MimeTypes.cs" />
     <Compile Include="NPOIExcelHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
