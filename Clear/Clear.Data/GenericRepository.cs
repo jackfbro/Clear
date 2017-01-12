@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Clear.Data
 {
-    class GenericRepository<T> where T : class
+    public class GenericRepository<T> where T : class
     {
         private DbContext context = DbContextFactory.CreateCurrentDbContext();
         private DbSet<T> dbSet;
@@ -147,6 +147,39 @@ namespace Clear.Data
         {
             return context.Database.SqlQuery<TElement>(sql, parameters);
         }
+        /// <summary>
+        /// Gets a table
+        /// </summary>
+        public IQueryable<T> Table
+        {
+            get
+            {
+                return this.dbSet;
+            }
+        }
+
+        /// <summary>
+        /// Gets a table with "no tracking" enabled (EF feature) Use it only when you load record(s) only for read-only operations
+        /// </summary>
+        public IQueryable<T> TableNoTracking
+        {
+            get
+            {
+                return this.dbSet.AsNoTracking();
+            }
+        }
+        ///// <summary>
+        ///// Entities
+        ///// </summary>
+        //protected virtual IDbSet<T> Entities
+        //{
+        //    get
+        //    {
+        //        if (_entities == null)
+        //            _entities = _context.Set<T>();
+        //        return _entities;
+        //    }
+        //}
         #region 待定
   
         public virtual IEnumerable<T> Get(

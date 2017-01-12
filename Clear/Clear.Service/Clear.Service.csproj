@@ -50,6 +50,10 @@
       <Project>{ba2b66ab-94ac-4315-90b4-ab7738225846}</Project>
       <Name>Clear.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Clear.Domain\Clear.Domain.csproj">
+      <Project>{4d56a151-c210-4e11-84e4-318e194ddd84}</Project>
+      <Name>Clear.Domain</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

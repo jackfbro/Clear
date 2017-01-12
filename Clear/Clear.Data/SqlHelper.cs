@@ -17,7 +17,9 @@ namespace Clear.Data
         /// <summary>
         /// 从web.confng中读取数据库连接字符串
         /// </summary>
-        private static readonly string connStr = ConfigurationManager.ConnectionStrings["ConnStr"].ConnectionString.Trim();
+        /// 
+        private static readonly string connStrDefault = ConfigurationManager.ConnectionStrings["ConnStrDefault"].ConnectionString.Trim();
+        private static readonly string connStrBasicInfo = ConfigurationManager.ConnectionStrings["ConnStrBasicInfo"].ConnectionString.Trim();
         // Hashtable to store cached parameters
         private static Hashtable parmCache = Hashtable.Synchronized(new Hashtable());
         #endregion
@@ -28,9 +30,9 @@ namespace Clear.Data
         /// </summary>
         /// <param name="sqlText">查询语句</param>
         /// <returns>查询返回结果集</returns>
-        public static DataTable ExecuteDataTable(string sqlText)
+        public static DataTable ExecuteDataTable(string connectionString, string sqlText)
         {
-            return ExecuteDataTable(sqlText, CommandType.Text, null);
+            return ExecuteDataTable(connectionString, sqlText, CommandType.Text, null);
         }
         /// <summary>
         /// 查询返回结果集,查询语句类型是SQL文本
@@ -38,9 +40,9 @@ namespace Clear.Data
         /// <param name="sqlText">查询语句</param>
         /// <param name="parameters">参数数组</param>
         /// <returns>查询返回结果集</returns>
-        public static DataTable ExecuteDataTable(string sqlText, SqlParameter[] parameters)
+        public static DataTable ExecuteDataTable(string connectionString, string sqlText, params SqlParameter[] parameters)
         {
-            return ExecuteDataTable(sqlText, CommandType.Text, parameters);
+            return ExecuteDataTable(connectionString, sqlText, CommandType.Text, parameters);
         }
         /// <summary>
         /// 查询返回结果集
@@ -49,22 +51,22 @@ namespace Clear.Data
         /// <param name="cmdType">查询语句类型，是SQL文本还是存储过程</param>
         /// <param name="parameters">参数数组</param>
         /// <returns>查询返回结果集</returns>
-        public static DataTable ExecuteDataTable(string sqlText, CommandType cmdType, params SqlParameter[] parameters)
+        public static DataTable ExecuteDataTable(string connectionString, string sqlText, CommandType cmdType, params SqlParameter[] parameters)
         {
             //实例化数据集，用于装载DataTable
             SqlCommand cmd = new SqlCommand();
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {              
-                    PrepareCommand(cmd, conn, null, cmdType, sqlText, parameters);
-                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    adapter.Fill(dt); //填充DataTable
-                    cmd.Parameters.Clear();// 清除参数集,以便再次使用    
-                    return dt;
-            }           
-        }       
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                PrepareCommand(cmd, conn, null, cmdType, sqlText, parameters);
+                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                adapter.Fill(dt); //填充DataTable
+                cmd.Parameters.Clear();// 清除参数集,以便再次使用    
+                return dt;
+            }
+        }
 
-        #endregion 
+        #endregion
 
         #region 返回SqlDataReader高速输出
         /// <summary>
@@ -72,9 +74,9 @@ namespace Clear.Data
         /// </summary>
         /// <param name="sqlText">查询语句</param>
         /// <returns>返回SqlDataReader</returns>
-        public static SqlDataReader ExecuteReader(string sqlText)
+        public static SqlDataReader ExecuteReader(string connectionString, string sqlText)
         {
-            return ExecuteReader(sqlText, CommandType.Text, null);
+            return ExecuteReader(connectionString, sqlText, CommandType.Text, null);
         }
         /// <summary>
         /// 返回SqlDataReader高速输出
@@ -82,9 +84,9 @@ namespace Clear.Data
         /// <param name="sqlText">查询语句</param>
         /// <param name="Paramter">参数</param>
         /// <returns>返回SqlDataReader</returns>
-        public static SqlDataReader ExecuteReader(string sqlText, SqlParameter[] parameters)
+        public static SqlDataReader ExecuteReader(string connectionString, string sqlText, params SqlParameter[] parameters)
         {
-            return ExecuteReader(sqlText, CommandType.Text, parameters);
+            return ExecuteReader(connectionString, sqlText, CommandType.Text, parameters);
         }
         /// <summary>
         /// 返回SqlDataReader高速输出
@@ -93,16 +95,16 @@ namespace Clear.Data
         /// <param name="cmdType">查询语句类型类型，是文本还是存储</param>
         /// <param name="Paramter">参数</param>
         /// <returns>返回SqlDataReader</returns>
-        public static SqlDataReader ExecuteReader(string sqlText, CommandType cmdType, SqlParameter[] parameters)
-        {           
+        public static SqlDataReader ExecuteReader(string connectionString, string sqlText, CommandType cmdType, params SqlParameter[] parameters)
+        {
             SqlCommand cmd = new SqlCommand();
-            using (SqlConnection Connection = new SqlConnection(connStr))
-            {                
-                    PrepareCommand(cmd, Connection, null, cmdType, sqlText, parameters);
-                    cmd.Parameters.Clear();// 清除参数集,以便再次使用
-                    return cmd.ExecuteReader(CommandBehavior.CloseConnection);        
+            using (SqlConnection Connection = new SqlConnection(connectionString))
+            {
+                PrepareCommand(cmd, Connection, null, cmdType, sqlText, parameters);
+                cmd.Parameters.Clear();// 清除参数集,以便再次使用
+                return cmd.ExecuteReader(CommandBehavior.CloseConnection);
             }
-           
+
         }
         #endregion
 
@@ -112,9 +114,9 @@ namespace Clear.Data
         /// </summary>
         /// <param name="sqlText">查询语句</param>
         /// <returns>返回第一行第一列</returns>
-        public static Object ExecuteScalar(string sqlText)
+        public static Object ExecuteScalar(string connectionString, string sqlText)
         {
-            return ExecuteScalar(sqlText, CommandType.Text, null);
+            return ExecuteScalar(connectionString, sqlText, CommandType.Text, null);
         }
         /// <summary>
         /// 执行查询返回第一行第一列,查询语句类型是SQL文本
@@ -122,9 +124,9 @@ namespace Clear.Data
         /// <param name="sqlText">查询语句</param>
         /// <param name="parameters">参数</param>
         /// <returns>返回第一行第一列</returns>
-        public static Object ExecuteScalar(string sqlText, SqlParameter[] parameters)
+        public static Object ExecuteScalar(string connectionString, string sqlText, params SqlParameter[] parameters)
         {
-            return ExecuteScalar(sqlText, CommandType.Text, parameters);
+            return ExecuteScalar(connectionString, sqlText, CommandType.Text, parameters);
         }
         /// <summary>
         /// 执行查询返回第一行第一列
@@ -133,17 +135,17 @@ namespace Clear.Data
         /// <param name="cmdType">语句类型，是文本还是存储过程</param>
         /// <param name="parameters">参数</param>
         /// <returns>返回第一行第一列</returns>
-        public static Object ExecuteScalar(string sqlText, CommandType cmdType, SqlParameter[] parameters)
-        {            
+        public static Object ExecuteScalar(string connectionString, string sqlText, CommandType cmdType, params SqlParameter[] parameters)
+        {
             SqlCommand cmd = new SqlCommand();
-            using (SqlConnection conn = new SqlConnection(connStr))//实例化Connection
+            using (SqlConnection conn = new SqlConnection(connectionString))//实例化Connection
             {
-                    PrepareCommand(cmd, conn, null, cmdType, sqlText, parameters);
-                    object obj = cmd.ExecuteScalar();//执行操作，返回结果
-                    cmd.Parameters.Clear();// 清除参数集,以便再次使用
-                    return obj;//返回对象                
+                PrepareCommand(cmd, conn, null, cmdType, sqlText, parameters);
+                object obj = cmd.ExecuteScalar();//执行操作，返回结果
+                cmd.Parameters.Clear();// 清除参数集,以便再次使用
+                return obj;//返回对象                
             }
-            
+
         }
 
         #endregion
@@ -154,9 +156,9 @@ namespace Clear.Data
         /// </summary>
         /// <param name="sqlText">查询语句</param>
         /// <returns>返回受影响行数</returns>
-        public static int ExecuteNonQuery(string sqlText)
+        public static int ExecuteNonQuery(string connectionString, string sqlText)
         {
-            return ExecuteNonQuery(sqlText, CommandType.Text, null);
+            return ExecuteNonQuery(connectionString, sqlText, CommandType.Text, null);
         }
         /// <summary>
         /// 对数据库进行增删改返回受影响行数
@@ -164,9 +166,9 @@ namespace Clear.Data
         /// <param name="sqlText">查询语句</param>
         /// <param name="parameters">参数</param>
         /// <returns>返回受影响行数</returns>
-        public static int ExecuteNonQuery(string sqlText, SqlParameter[] parameters)
+        public static int ExecuteNonQuery(string connectionString, string sqlText, params SqlParameter[] parameters)
         {
-            return ExecuteNonQuery(sqlText, CommandType.Text, parameters);
+            return ExecuteNonQuery(connectionString, sqlText, CommandType.Text, parameters);
         }
         /// <summary>
         /// 对数据库进行增删改返回受影响行数
@@ -175,26 +177,26 @@ namespace Clear.Data
         /// <param name="cmdType">语句类型，是文本还是存储过程</param>
         /// <param name="parameters">参数</param>
         /// <returns>返回受影响行数</returns>
-        public static int ExecuteNonQuery(string sqlText, CommandType cmdType, SqlParameter[] parameters)
-        {            
+        public static int ExecuteNonQuery(string connectionString, string sqlText, CommandType cmdType, params SqlParameter[] parameters)
+        {
             SqlCommand cmd = new SqlCommand();
-            using (SqlConnection conn = new SqlConnection(connStr))//实例化connection
+            using (SqlConnection conn = new SqlConnection(connectionString))//实例化connection
             {
-                    PrepareCommand(cmd, conn, null, cmdType, sqlText, parameters);
-                    int val = cmd.ExecuteNonQuery();//执行操作，返回受影响行数
-                    cmd.Parameters.Clear();
-                    return val;                                       
-            }    
-        }   
+                PrepareCommand(cmd, conn, null, cmdType, sqlText, parameters);
+                int val = cmd.ExecuteNonQuery();//执行操作，返回受影响行数
+                cmd.Parameters.Clear();
+                return val;
+            }
+        }
         /// <summary>
         /// 对数据库进行增删改返回受影响行数
         /// </summary>
         /// <param name="trans">事务</param>
         /// <param name="sqlText">查询语句</param>
         /// <returns>返回受影响行数</returns>
-        public static int ExecuteNonQuery(SqlTransaction trans, string sqlText)
+        public static int ExecuteNonQuery(string connectionString, SqlTransaction trans, string sqlText)
         {
-            return ExecuteNonQuery(trans, sqlText, CommandType.Text, null);
+            return ExecuteNonQuery(connectionString, trans, sqlText, CommandType.Text, null);
         }
         /// <summary>
         /// 对数据库进行增删改返回受影响行数
@@ -203,9 +205,9 @@ namespace Clear.Data
         /// <param name="sqlText">查询语句</param>
         /// <param name="parameters">参数</param>
         /// <returns>返回受影响行数</returns>
-        public static int ExecuteNonQuery(SqlTransaction trans, string sqlText, SqlParameter[] parameters)
+        public static int ExecuteNonQuery(string connectionString, SqlTransaction trans, string sqlText, params SqlParameter[] parameters)
         {
-            return ExecuteNonQuery(trans, sqlText, CommandType.Text, parameters);
+            return ExecuteNonQuery(connectionString, trans, sqlText, CommandType.Text, parameters);
         }
         /// <summary>
         /// 对数据库进行增删改返回受影响行数
@@ -215,51 +217,20 @@ namespace Clear.Data
         /// <param name="cmdType">语句类型，是文本还是存储过程</param>
         /// <param name="parameters">参数</param>
         /// <returns>返回受影响行数</returns>
-        public static int ExecuteNonQuery(SqlTransaction trans, string sqlText, CommandType cmdType, SqlParameter[] parameters)
+        public static int ExecuteNonQuery(string connectionString, SqlTransaction trans, string sqlText, CommandType cmdType,params SqlParameter[] parameters)
         {
             SqlCommand cmd = new SqlCommand();
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {           
-                    PrepareCommand(cmd, conn, trans, cmdType, sqlText, parameters);
-                    int val = cmd.ExecuteNonQuery();//执行操作，返回受影响行数
-                    cmd.Parameters.Clear();
-                    return val;
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                PrepareCommand(cmd, conn, trans, cmdType, sqlText, parameters);
+                int val = cmd.ExecuteNonQuery();//执行操作，返回受影响行数
+                cmd.Parameters.Clear();
+                return val;
             }
-           
-        
+
+
         }
         #endregion
-
-
-        /// <summary>
-        /// add parameter array to the cache
-        /// </summary>
-        /// <param name="cacheKey">Key to the parameter cache</param>
-        /// <param name="cmdParms">an array of SqlParamters to be cached</param>
-        public static void CacheParameters(string cacheKey, params SqlParameter[] commandParameters)
-        {
-            parmCache[cacheKey] = commandParameters;
-        }
-
-        /// <summary>
-        /// Retrieve cached parameters
-        /// </summary>
-        /// <param name="cacheKey">key used to lookup parameters</param>
-        /// <returns>Cached SqlParamters array</returns>
-        public static SqlParameter[] GetCachedParameters(string cacheKey)
-        {
-            SqlParameter[] cachedParms = (SqlParameter[])parmCache[cacheKey];
-
-            if (cachedParms == null)
-                return null;
-
-            SqlParameter[] clonedParms = new SqlParameter[cachedParms.Length];
-
-            for (int i = 0, j = cachedParms.Length; i < j; i++)
-                clonedParms[i] = (SqlParameter)((ICloneable)cachedParms[i]).Clone();
-
-            return clonedParms;
-        }
 
         //批量添加/复制系列
 
@@ -270,10 +241,10 @@ namespace Clear.Data
         /// <param name="Reader">数据源</param>
         /// <param name="Mapping">定义数据源和目标源列的关系集合</param>
         /// <param name="DestinationTableName">目标表</param>
-        public static bool SqlBulkCopy(SqlDataReader Reader, SqlBulkCopyColumnMapping[] Mapping, string DestinationTableName)
+        public static bool SqlBulkCopy(string connectionString, SqlDataReader Reader, SqlBulkCopyColumnMapping[] Mapping, string DestinationTableName)
         {
             bool Bool = true;
-            using (SqlConnection con = new SqlConnection(connStr))
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
                 using (SqlTransaction Tran = con.BeginTransaction())//指定事务
@@ -317,10 +288,10 @@ namespace Clear.Data
         /// <param name="Table">数据源</param>
         /// <param name="Mapping">定义数据源和目标源列的关系集合</param>
         /// <param name="DestinationTableName">目标表</param>
-        public static bool SqlBulkCopy(DataTable Table, SqlBulkCopyColumnMapping[] Mapping, string DestinationTableName)
+        public static bool SqlBulkCopy(string connectionString, DataTable Table, SqlBulkCopyColumnMapping[] Mapping, string DestinationTableName)
         {
             bool Bool = true;
-            using (SqlConnection con = new SqlConnection(connStr))
+            using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
                 using (SqlTransaction Tran = con.BeginTransaction())
@@ -352,7 +323,7 @@ namespace Clear.Data
             return Bool;
         }
         #endregion
-     
+
 
         #region 提取SqlCommand
         /// <summary>
@@ -364,19 +335,19 @@ namespace Clear.Data
         /// <param name="cmdType">命令类型例如 存储过程或者文本</param>
         /// <param name="sqlText">sql命令文本,例如：Select * from Products</param>
         /// <param name="parameters">执行命令的参数</param>
-        private static void PrepareCommand(SqlCommand cmd,SqlConnection conn,SqlTransaction trans,CommandType cmdType,string sqlText,SqlParameter[] parameters)
+        private static void PrepareCommand(SqlCommand cmd, SqlConnection conn, SqlTransaction trans, CommandType cmdType, string sqlText, SqlParameter[] parameters)
         {
-            if (conn.State != ConnectionState.Open) 
-				conn.Open();
-			
+            if (conn.State != ConnectionState.Open)
+                conn.Open();
+
             cmd.Connection = conn;
             cmd.CommandText = sqlText;
-			
-            if (trans != null) 
-				cmd.Transaction = trans;
-			
+
+            if (trans != null)
+                cmd.Transaction = trans;
+
             cmd.CommandType = cmdType;
-			
+
             if (parameters != null)
             {
                 foreach (SqlParameter parm in parameters)
@@ -389,34 +360,27 @@ namespace Clear.Data
         #endregion
 
         #region DataTable反射转类
-        public static List<T> MapEntity<T>(DataTable dt)where T:class,new()
+        public static List<T> MapEntity<T>(DataTable dt) where T : class,new()
         {
-            try
+            var props = typeof(T).GetProperties();
+            var list = new List<T>();
+            foreach (DataRow row in dt.Rows)
             {
-                var props = typeof(T).GetProperties();
-                var list = new List<T>();
-                foreach (DataRow row in dt.Rows)
+                var temp = new T();
+                foreach (var p in props)
                 {
-                    var temp = new T();
-                    foreach (var p in props)
+                    if (p.CanWrite)
                     {
-                        if (p.CanWrite)
+                        var data = row[p.Name];
+                        if (data != DBNull.Value)
                         {
-                            var data = row[p.Name];
-                            if (data != DBNull.Value)
-                            {
-                                p.SetValue(temp, Convert.ChangeType(data, p.PropertyType), null);
-                            }
+                            p.SetValue(temp, Convert.ChangeType(data, p.PropertyType), null);
                         }
                     }
-                    list.Add(temp);
                 }
-                return list;
+                list.Add(temp);
             }
-            catch
-            {
-                return null;
-            }
+            return list;
         }
         /// <summary>
         /// 反射：将一个SqlDataReader实例化为一个实体对象
@@ -426,37 +390,62 @@ namespace Clear.Data
         /// <returns>实体对象</returns>
         public static T MapEntity<T>(SqlDataReader reader) where T : class,new()
         {
-            try
+            var props = typeof(T).GetProperties();
+            var entity = new T();
+            foreach (var p in props)
             {
-                var props = typeof(T).GetProperties();
-                var entity = new T();
-                foreach (var p in props)
+                if (p.CanWrite)
                 {
-                    if (p.CanWrite)
+                    try
                     {
-                        try
+                        var index = reader.GetOrdinal(p.Name);
+                        var data = reader.GetValue(index);
+                        var d = reader[p.Name];
+                        if (data != DBNull.Value)
                         {
-                            var index = reader.GetOrdinal(p.Name);
-                            var data = reader.GetValue(index);
-                            var d = reader[p.Name];
-                            if (data != DBNull.Value)
-                            {
-                                p.SetValue(entity, Convert.ChangeType(data, p.PropertyType), null);
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            continue;
+                            p.SetValue(entity, Convert.ChangeType(data, p.PropertyType), null);
                         }
                     }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
                 }
-                return entity;
             }
-            catch
-            {
-                return null;
-            }
+            return entity;
 
+        }
+        #endregion
+
+        #region 缓存参数 
+        /// <summary>
+        /// add parameter array to the cache
+        /// </summary>
+        /// <param name="cacheKey">Key to the parameter cache</param>
+        /// <param name="cmdParms">an array of SqlParamters to be cached</param>
+        public static void CacheParameters(string cacheKey, params SqlParameter[] commandParameters)
+        {
+            parmCache[cacheKey] = commandParameters;
+        }
+
+        /// <summary>
+        /// Retrieve cached parameters
+        /// </summary>
+        /// <param name="cacheKey">key used to lookup parameters</param>
+        /// <returns>Cached SqlParamters array</returns>
+        public static SqlParameter[] GetCachedParameters(string cacheKey)
+        {
+            SqlParameter[] cachedParms = (SqlParameter[])parmCache[cacheKey];
+
+            if (cachedParms == null)
+                return null;
+
+            SqlParameter[] clonedParms = new SqlParameter[cachedParms.Length];
+
+            for (int i = 0, j = cachedParms.Length; i < j; i++)
+                clonedParms[i] = (SqlParameter)((ICloneable)cachedParms[i]).Clone();
+
+            return clonedParms;
         }
         #endregion
     }

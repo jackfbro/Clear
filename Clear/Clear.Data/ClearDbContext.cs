@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Clear.Domain;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Clear.Data
 {
-    class ClearDbContext:DbContext
+    public class ClearDbContext:DbContext
     {
         public ClearDbContext()
             : base("name=ConnectionString")
@@ -24,5 +25,6 @@ namespace Clear.Data
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>(); 
             base.OnModelCreating(modelBuilder);
         }
+        public DbSet<UserInfo> UserInfo { get; set; }
     }
 }
